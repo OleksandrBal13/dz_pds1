@@ -24,3 +24,4 @@ class NewCar(Car):
 
 vw = NewCar("VW","black", 3)
 print(vw.classmethod2())
+##
