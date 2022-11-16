@@ -23,5 +23,4 @@ class NewCar(Car):
         return "Move right"
 
 vw = NewCar("VW","black", 3)
-print(vw.classmethod2())
-##
+print(vw.classmethod1())
