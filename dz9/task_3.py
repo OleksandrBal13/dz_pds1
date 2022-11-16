@@ -16,6 +16,3 @@ class Square(Parallelogram):
 second = Square(10, 14)
 print(second.get_area())
 
-#
-
-###

@@ -1,22 +1,45 @@
-class TextProcessor(object):
-    def __init__(self, text):
-        self.text = text
-    def get_clean_string(self):
-        puncs = ",", ".", "!", "?"
-        for i in range(len(puncs)):
-            self.text = self.text.replace(puncs[i],"")
-        return self.text
-    def is_punktiantion(self):
-        if self.text.find("s") == True:
-            return True
+class TextProcessor:
+    def __init__(self):
+        self._punktuation = '!@#$%^&*()_+<>?,./'
+    def __is_punktuation(self, symbol):
+        return symbol in self._punktuation
+
+    def get_clean_string(self, text):
+        clean_text = ""
+        for symbol in text:
+            if self.__is_punktuation(symbol):
+                continue
+            clean_text += symbol
+        return clean_text
 
 
+class TextLoader:
+    def __init__(self):
+        self.__text_processor = TextProcessor()
+        self.__clean_string = None
+
+    def set_clean_string(self, text):
+        self.__clean_string = self.__text_processor.get_clean_string(text)
+
+    @property
+    def clean_string(self):
+        print("Your str without puncs is here ---> {}".format(self.__clean_string))
+        return self.__clean_string
 
 
+class DataInterface:
+    def __init__(self):
+        self.__text_loader = TextLoader()
 
-shon = TextProcessor("s.............dsadadasdas")
-print(shon.get_clean_string())
-print(shon.is_punktiantion())
+    def process_texts(self, texts):
+        clean_texts = []
+        for text in texts:
+            self.__text_loader.set_clean_string(text)
+            clean = self.__text_loader.clean_string
+            clean_texts.append(clean)
+        return clean_texts
 
 
-##
+data_interface = DataInterface()
+test_text = ["Imma . trying. to , delete ! punctuations"]
+test = data_interface.process_texts(test_text)
