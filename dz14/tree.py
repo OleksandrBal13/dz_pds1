@@ -1,10 +1,8 @@
 from Trees import Tree
 
 # preorder traversal
-list = []
 def pre_order(node):
     if node:
-        list.append(node.id_node)
         print(node.id_node)
         pre_order(node.left)
         pre_order(node.right)
@@ -33,8 +31,12 @@ tree.insert(8)
 tree.insert(22)
 tree.insert(14)
 
-list = [1, 2, 3, 4, 5, 77, 43, 65]
+list = [1, 2, 3, 4, 5, 77, 43, 65, 2222]
 tree.insert_list(list)
+
 tree.print_tree()
+print(f"Min value is  {tree.min_value()}, and max value is {tree.max_value()}")
 
-
+tree.delete_node(2222)
+tree.delete_node(1)
+print(f"Min value is  {tree.min_value()}, and max value is {tree.max_value()}")
