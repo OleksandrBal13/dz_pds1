@@ -1,3 +1,4 @@
+from binarytree import *
 from Trees import Tree
 
 # preorder traversal
