@@ -1,444 +1,122 @@
+import numpy as np
 
-#  Клас Matrix створено для роботи із матрицями різних розмірностей
-# Створення екземпляру класу можливо або пустим або з одночасною передачею в якості аргумента вкладеного списку.
-# В класі визначені усі математичні операції для роботи з екземплярами класу використовуючі звичайні операнди +-*/
-# Матриці створені в класі можуть працювати із даними типу Int,Float,Complex
-# В класі визначена процедура візуалізації екземпляру класу для виводу на екран.
+class MyMatrixError(Exception):
+    def __init__(self, *args):
+        if args:
+            self.message = args[0]
+        else:
+            self.message = None
+
+    def __str__(self):
+        return f"Неможливо здійснити операцію: {self.message}"
 
 class Matrix:
-    def __init__(self,mtr=None,det=None,x=0,y=0):
-        if mtr:
-            self.mtr = mtr              # Список у якому зберігаються елементи матриці із можливістю доступу за форматом mtr[i][j]
-            self.x=len(mtr[0])          # Кількість рядків
-            self.y=len(mtr)             # Кількість строк
-            self.det=Matrix.deter(self) # Детермінант матриці
-        else:
-            self.mtr = None
-            self.x = 1
-            self.y = 1
+    def __init__(self, lst):
+        self.lst = lst
+        self.A = np.array(lst)
 
-    #  Визначення виду матриці яка виводиться на печать викликається командою print(A)
-    # Одночасно із виведенням на печать основної матриці друкується довідкова інформація про матрицу
-    # розмірність, детермінант та ранг
-    def __str__(self):
-        if self.mtr:
-            cmpl=False
-            max=1
-            l=0
-            r=0
-            non=0
-            for i in range(self.y):
-                for j in range(self.x):
-                    s = str(self.mtr[i][j])
-                    if self.mtr[i][j]==None:
-                        non+=1
-                    if isinstance(self.mtr[i][j],complex):
-                        cmpl=True
-                    parts=s.partition(".")
-                    if len(parts[0])>l:
-                        l=len(parts[0])
-                    if len(parts[2])>r:
-                        r=len(parts[2])
-                    if max<len(str(self.mtr[i][j])):
-                        max=len(str(self.mtr[i][j]))
-            if non>0 and non < self.x*self.y:
-                print("У матриці є частково незаповнені значення.")
-                return ""
-            elif non == self.x*self.y:
-                print(f'Matrix {self.y}x{self.x}   Determinant={self.det}')
-                for i in range(self.y):
-                    print("|", end="")
-                    for j in range(self.x - 1):
-                        print(self.mtr[i][j], " ", end="")
-                    print(self.mtr[i][-1], "|")
-                return ""
-            if cmpl:
-                for i in range(self.y):
-                    for j in range(self.x):
-                        self.mtr[i][j]=complex(self.mtr[i][j])
-                        if max < len(str(self.mtr[i][j])):
-                            max = len(str(self.mtr[i][j]))
-                st="{:{align}{width}}"
-            else:
-                st="{:{align}{width}.{precision}f}"
-            print(f'Matrix {self.y}x{self.x}   Determinant={self.det}  Rank={self.rank()}')
-            for i in range(self.y):
-                print("|",end="")
-                for j in range(self.x-1):
-                    if cmpl:
-                        print(st.format(self.mtr[i][j], align='>', width=max), " ", end="")
-                    else:
-                        print(st.format(self.mtr[i][j],align='>', width=l+r+1, precision=r)," ",end="")
-                if cmpl:
-                    print(st.format(self.mtr[i][-1], align='>', width=max), "|")
-                else:
-                    print(st.format(self.mtr[i][-1],align='>', width=l+r+1, precision=r),"|")
-        else:
-            print(f"|{self.mtr}|")
-        return ""
+    def sum(self, col):
+        if len(self.A) < len(col.A):
+            delta = len(col.A) - len(self.A)
+            list = []
+            for i in range(len(self.A[0])):
+                list.append(0)
+            for i in range(delta):
+                self.lst.append(list)
+            self.A = np.array(self.lst)
+        if len(self.A) > len(col.A):
+            delta = len(self.A) - len(col.A)
+            list = []
+            for i in range(len(col.A[0])):
+                list.append(0)
+            for i in range(delta):
+                col.lst.append(list)
+            col.A = np.array(col.lst)
+        if len(self.A[0]) < len(col.A[0]):
+            delta = len(col.A[0]) - len(self.A[0])
+            for j in range(delta):
+                for i in self.lst:
+                    i.append(0)
+            self.A = np.array(self.lst)
+        if len(self.A[0]) > len(col.A[0]):
+            delta = len(self.A[0]) - len(col.A[0])
+            for j in range(delta):
+                for i in col.lst:
+                    i.append(0)
+            col.A = np.array(col.lst)
+        D = self.A + col.A
+        return D
 
-    # Функція дозволяє створювати копію екземпляру класу без зміни оригіналу
-    def copy(self):
-        b=[]
-        for i in range(self.y):
-            c = []
-            for j in range(self.x):
-                c.append(None)
-            b.append(c)
-        for i in range(self.y):
-            for j in range(self.x):
-                b[i][j]=self.mtr[i][j]
-        return Matrix(b)
+    def dif(self, col):
+        if len(self.A) < len(col.A):
+            delta = len(col.A) - len(self.A)
+            list = []
+            for i in range(len(self.A[0])):
+                list.append(0)
+            for i in range(delta):
+                self.lst.append(list)
+            self.A = np.array(self.lst)
+        if len(self.A) > len(col.A):
+            delta = len(self.A) - len(col.A)
+            list = []
+            for i in range(len(col.A[0])):
+                list.append(0)
+            for i in range(delta):
+                col.lst.append(list)
+            col.A = np.array(B.lst)
+        if len(self.A[0]) < len(col.A[0]):
+            delta = len(col.A[0]) - len(self.A[0])
+            for j in range(delta):
+                for i in self.lst:
+                    i.append(0)
+            self.A = np.array(self.lst)
+        if len(self.A[0]) > len(col.A[0]):
+            delta = len(self.A[0]) - len(col.A[0])
+            for j in range(delta):
+                for i in col.lst:
+                    i.append(0)
+            col.A = np.array(B.lst)
+        D = self.A - col.A
+        return D
 
-    # Функція дозволяє проводити транспонування переданої матриці із створенням нової транспонованої копії
-    def transpon(self):
-        b=list()
-        c=list()
-        if self.mtr:
-            for i in range(self.x):
-                c=[]
-                for j in range(self.y):
-                    c.append(None)
-                b.append(c)
-            for i in range(self.y):
-                for j in range(self.x):
-                    b[j][i]=self.mtr[i][j]
-            return Matrix(b)
-        else:
-            return Matrix(None)
+    def mult_number(self, num):
+        return self.A * num
 
-    # Функія визначає мінор будь-якого елементу матриці.
-    # В якості аргументів функція приймає матрицю а та [k],[l] - строка, стовбчик елемента матриці до якого будується мінор
-    def minor(a,k,l):
-        c=list()
-        d=list()
-        for i in range(a.y):
-            c = []
-            for j in range(a.x):
-                if j!=l-1 :
-                    c.append(a.mtr[i][j])
-            if i!=k-1 :
-                d.append(c)
-        p=Matrix(d)
-        return p
-
-
-    # Службова функція яка будує доповнення до елементу матриці при розрахунку детермінанту згідно правил розкладення
-    # детермінанта за елементами строки
-    def dopolnenie(list_matrica):
-        new = list()
-        for i in range(list_matrica[1].x):
-            new.append([None, None])
-        for i in range(list_matrica[1].x):
-            new[i][0] = list_matrica[0] * list_matrica[1].mtr[0][i] * (-1) ** i
-            new[i][1] = Matrix.minor(list_matrica[1], 1, i + 1)
-        return new
-
-    # Функція вираховує детермінант матриці
-    def deter(m):
-        sum=0
-        if  m.x==m.y :
-            if  m.x == 1:
-                return m.mtr[0][0]
-            elif m.x==2:
-                return m.mtr[0][0]*m.mtr[1][1]-m.mtr[1][0]*m.mtr[0][1]
-            elif m.x>2:
-                ls=[[1,m]]
-                for j in range(m.x-1):
-                    n=len(ls)
-                    ls_new = []
-                    ls_new1=[]
-                    for i in ls:
-                        ls_new=Matrix.dopolnenie(i)
-                        for k in ls_new:
-                            ls_new1.append(k)
-                    ls.clear()
-                    ls=ls_new1
-                for i in range(len(ls)):
-                    sum=sum+ls[i][0]*ls[i][1].mtr[0][0]
-                return sum
-        else:
-            return None
-
-    # Функція дозволяє складати дві матриці однакових розмірів зі зміною екземпляру класу
-    def add(self,b):
-        if  isinstance(b,Matrix):
-            if self.x==b.x and self.y==b.y:
-                for i in range(self.y):
-                    for j in range(self.x):
-                        self.mtr[i][j] += b.mtr[i][j]
-                return self
-            else:
-                print("Матриці мають різну розмірність ця операція не допустима")
-                return None
-        else:
-            print("Не відповідність типів даних! Аргумент функції Matrix.add повинен бути об'єктом типу Matrix.")
-            return None
-
-    # Функція дозволяє додавати числове значення до всіх елементів матриці зі зміною оригіналу
-    def add_num(self,b):
-        for i in range(self.y):
-            for j in range(self.x):
-                self.mtr[i][j] += b
-        return self
-
-    # Функція дозволяє віднімати числове значення від всіх елементів матриці зі зміною оригіналу
-    def sub_num(self,b):
-        for i in range(self.y):
-            for j in range(self.x):
-                self.mtr[i][j] -= b
-        return self
-
-    # Функція дозволяє множити числове значення на всі елементи матриці зі зміною оригіналу
-    def mult_num(self,b):
-        for i in range(self.y):
-            for j in range(self.x):
-                self.mtr[i][j] *= b
-        return self
-
-    # Функція дозволяє поділити всі елементи матриці на  числове значення зі зміною оригіналу
-    def div_num(self,b):
-        for i in range(self.y):
-            for j in range(self.x):
-                self.mtr[i][j] /= b
-        return self
-
-    # Функція проводить перевизначення операції + для об'єктів класу в залежності від того які типи даних складаються
-    def __add__ (self,b):
-            d = list()
-            c = list()
-            if isinstance(self,Matrix) and isinstance(b,(Matrix, int, float, complex)):
-                if (isinstance(self,Matrix) and isinstance(b,Matrix)) and (self.x!=b.x or self.y!=b.y):
-                    return "Матриці мають різну розмірність ця операція не допустима"
-                else:
-                    for i in range(self.y):
-                        c = []
-                        for j in range(self.x):
-                            c.append(None)
-                        d.append(c)
-                    for i in range(self.y):
-                        for j in range(self.x):
-                            if isinstance(b,Matrix):
-                                d[i][j] = self.mtr[i][j] + b.mtr[i][j]
-                            else:
-                                d[i][j] = self.mtr[i][j] + b
-                    return Matrix(d)
-            else:
-                return "Не відповідність типів даних! Аргументи функції '+' повинні бути об'єктами типу Matrix, Int, Float або Complex"
-
-    # Функція проводить перевизначення операції + для об'єктів класу (в іншу сторону) в залежності від того які типи даних складаються
-    def __radd__(self, b):
-        d = list()
-        c = list()
-        if isinstance(self, Matrix) and isinstance(b, (int, float, complex)):
-            for i in range(self.y):
-                c = []
-                for j in range(self.x):
-                    c.append(None)
-                d.append(c)
-            for i in range(self.y):
-                for j in range(self.x):
-                    d[i][j] = self.mtr[i][j] + b
-            return Matrix(d)
-        else:
-            return "Не відповідність типів даних! Аргументи функції '+' повинні бути об'єктами типу Matrix, Int, Float або Complex"
-
-    # Функція проводить перевизначення операції - для об'єктів класу в залежності від того які типи даних віднімаються
-    def __sub__ (self,b):
-            d = list()
-            c = list()
-            if isinstance(self,Matrix) and isinstance(b,(Matrix, int, float, complex)):
-                if (isinstance(self,Matrix) and isinstance(b,Matrix)) and (self.x!=b.x or self.y!=b.y):
-                    return "Матриці мають різну розмірність ця операція не допустима"
-                else:
-                    for i in range(self.y):
-                        c = []
-                        for j in range(self.x):
-                            c.append(None)
-                        d.append(c)
-                    for i in range(self.y):
-                        for j in range(self.x):
-                            if isinstance(b,Matrix):
-                                d[i][j] = self.mtr[i][j] - b.mtr[i][j]
-                            else:
-                                d[i][j] = self.mtr[i][j] - b
-                    return Matrix(d)
-            else:
-                return "Не відповідність типів даних! Аргументи функції '+' повинні бути об'єктами типу Matrix, Int, Float або Complex"
-
-    # Функція проводить перевизначення операції * для об'єктів класу в залежності від того які типи даних перемножуються
-    # Коректно працює при перемноженні матриць, у відповідності, до математичних правил
-    def __mul__ (self,b):
-            d = list()
-            c = list()
-            if isinstance(self,Matrix) and isinstance(b,(Matrix, int, float, complex)):
-                if (isinstance(self,Matrix) and isinstance(b,Matrix)) and (self.y!=b.x):
-                    return "Матриці мають різну розмірність ця операція не допустима"
-                elif (isinstance(self,Matrix) and isinstance(b,Matrix)) and (self.y==b.x):
-                    for i in range(self.y):
-                        c = []
-                        for j in range(b.x):
-                            c.append(0)
-                        d.append(c)
-                    for i in range(self.y):
-                        for j in range(b.x):
-                             for k in range(self.x):
-                                 d[i][j]=d[i][j]+self.mtr[i][k]*b.mtr[k][j]
-                    return Matrix(d)
-                else:
-                    for i in range(self.y):
-                        c = []
-                        for j in range(self.x):
-                            c.append(None)
-                        d.append(c)
-                    for i in range(self.y):
-                        for j in range(self.x):
-                            d[i][j] = self.mtr[i][j] * b
-                    return Matrix(d)
-            else:
-                return "Не відповідність типів даних! Аргументи функції '+' повинні бути об'єктами типу Matrix, Int, Float або Complex"
-
-    # Функція проводить перевизначення операції * (в іншу сторону) для об'єктів класу в залежності від того які типи даних перемножуються
-    def __rmul__(self, b):
-        d = list()
-        c = list()
-        if isinstance(self, Matrix) and isinstance(b, (int, float, complex)):
-            for i in range(self.y):
-                c = []
-                for j in range(self.x):
-                    c.append(None)
-                d.append(c)
-            for i in range(self.y):
-                for j in range(self.x):
-                    d[i][j] = self.mtr[i][j] * b
-            return Matrix(d)
-        else:
-            return "Не відповідність типів даних! Аргументи функції '+' повинні бути об'єктами типу Matrix, Int, Float або Complex"
-
-    # Функція проводить перевизначення операції /  для об'єктів класу в залежності від того які типи даних діляться
-    def __truediv__(self, b):
-        d = list()
-        c = list()
-        if isinstance(self, Matrix) and isinstance(b, (int, float, complex)):
-            for i in range(self.y):
-                c = []
-                for j in range(self.x):
-                    c.append(None)
-                d.append(c)
-            for i in range(self.y):
-                for j in range(self.x):
-                    d[i][j] = self.mtr[i][j] / b
-            return Matrix(d)
-        else:
-            return "Не відповідність типів даних! Аргументи функції '+' повинні бути об'єктами типу Matrix, Int, Float або Complex"
-
-    # Функція генерує одиничну матрицю розмірністю n*n
-    def one_mtr(n):
-        d = list()
-        c = list()
-        for i in range(n):
-            c = []
-            for j in range(n):
-                if i==j :
-                    c.append(1)
-                else:
-                    c.append(0)
-            d.append(c)
-        return Matrix(d)
-
-    # Функція проводить ступінчате перетворення матриці за методом Гаусса та будує верхню трикутну матрицю
-    def triangl_transform(self):
-        if self.x!=self.y:
-            print("Функція може проводити перетворення тільки квадратних матриць. Перевірте параметри матриці!")
-            return None
-        a = self.copy()
-        if a.mtr[0][0]==0 and a.x>1:
-            i=1
-            n=0
-            while True:
-                if a.mtr[i][0]!=0:
-                    n=i
-                    break
-                i+=1
-            if n==0:
-                print("Перший стовбчик матриці має всі нульові значення. Перевірте параметри матриці!")
-                return None
-            for i in range(a.x):
-                a.mtr[0][i],a.mtr[n][i]=a.mtr[n][i],a.mtr[0][i]
+    def mult_matrix(self, col):
         try:
-            n = a.mtr[0][0]
-            for i in range(a.x):
-                a.mtr[0][i]=a.mtr[0][i]/n
-            for j in range(a.x-1):
-                ls = []
-                for k in range(j+1,a.x):
-                    for i in range(a.x):
-                        a.mtr[k][i]=a.mtr[k][i]+(-1)*a.mtr[k][i]*a.mtr[j][i]
-                n=a.mtr[j+1][j+1]
-                for i in range(a.x):
-                    a.mtr[j+1][i] = a.mtr[j+1][i] /n
-        except ZeroDivisionError:
-            return None
+            if len(self.A[0]) == len(col.A):
+                D = self.A.dot(col.A)
+                return D
+            else:
+                raise MyMatrixError("Кількість стовпчиків однієї матриці не дорівнює кількості рядків іншої матриці")
+        except Exception as ex:
+            return ex
 
-        return a
-
-    # Функція вираховує ранг матриці
-    def rank(m):
-        if m.x!=m.y:
-            print("Функція може розраховувати ранг тільки для квадратних матриць")
-            return None
-        if m.x==0:
-            return 0
-        elif m.x==1 and m.mtr[0][0]==0:
-            return 0
-        elif m.x==1 and m.mtr[0][0]!=0:
-            return 1
-        elif m.x>=2:
-            a=m.triangl_transform()
-            n=0
-            k=0
-            for i in range(a.x):
-                for j in range(i,a.y):
-                    if a.mtr[i][j]==0:
-                        n+=1
-                if n==a.x-i:
-                    k+=1
-        return a.x-k
+    def transposition(self):
+        return self.A.transpose()
 
 
-lst=[[3,2,3],
-     [2,-14,4],
-     [8,15,9]]
-lst1=[[1,2,3,4],[6,4,7,3],[8,5,9,2],[3,4,2,6]]
-lst2=[[3,9], [2,4]]
-lst3=[[-5,25,3,4,5],[6,4,-7,3,5],[8,5,9,2,5],[3,4,2,6,5],[5,4,3,2,1]]
-lst4=[[14,2,9],
-     [1,-7,2],
-     [-6,3,8]]
-lst5=[[2,3],[4,6]]
+matrix_1 = [[1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9]]
 
+matrix_2 = [[9, 8, 7],
+            [6, 5, 4],
+            [3, 2, 1]]
 
-print(Matrix(lst1))
-a=Matrix(lst4)
-b=Matrix(lst)
-c=a*b
-print(c)
-c=a-b
-print(c)
-c=a+b
-print(c)
-c=a*5
-print(c)
-c=a-5
-print(c)
-c=a/5
-print(c)
-print(Matrix.one_mtr(3))
-a=Matrix(lst)
-print(a.sub_num(3))
-print(a.mult_num(3))
-print(c.add_num(-5))
-print(b.div_num(3))
-print(a.add(b))
-c=Matrix(lst3)
-print(c.triangl_transform())
+matrix_3 = [[1, 2, 3, 4, 5],
+            [6, 7, 8, 9, 0]]
+
+matrix_1 = Matrix(matrix_1)
+matrix_2 = Matrix(matrix_2)
+matrix_3 = Matrix(matrix_3)
+
+print("Результат додавання матриць:\n", matrix_1.sum(matrix_2))
+print("Результат віднімання матриць:\n", matrix_2.dif(matrix_1))
+print("Результат множення матриці на число:\n", matrix_1.mult_number(5))
+print("Результат множення матриці на матрицю:\n", matrix_1.mult_matrix(matrix_2))
+print("Результат транспонування матриці:\n", matrix_1.transposition())
+print("Результат додавання матриць після приведення їх у відповідність до операції:\n", matrix_1.sum(matrix_3))
+print("Результат віднімання матриць після приведення їх у відповідність до операції:\n", matrix_1.dif(matrix_3))
+print("Обробка виключної ситуації для множення\n", matrix_1.mult_matrix(matrix_3))
+
