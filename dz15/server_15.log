@@ -1,0 +1,18 @@
+05-Mar-23 10:18:25 - INFO - Server is running, please, press ctrl+c to stop
+05-Mar-23 10:18:37 - DEBUG - connected:('127.0.0.1', 56802)
+05-Mar-23 10:20:17 - INFO - Server is running, please, press ctrl+c to stop
+05-Mar-23 10:20:24 - DEBUG - connected:('127.0.0.1', 56804)
+05-Mar-23 10:20:28 - INFO - User message:yo
+05-Mar-23 10:20:28 - WARNING - Sending error message to the user
+05-Mar-23 10:20:51 - INFO - User message:Hello
+05-Mar-23 10:20:51 - INFO - Sending answer message to the user
+05-Mar-23 10:20:56 - INFO - User message:How are you
+05-Mar-23 10:20:56 - WARNING - Sending error message to the user
+05-Mar-23 10:21:01 - INFO - User message:How are you?
+05-Mar-23 10:21:01 - INFO - Sending answer message to the user
+05-Mar-23 10:21:09 - INFO - User message:Nice
+05-Mar-23 10:21:09 - WARNING - Sending error message to the user
+05-Mar-23 10:23:20 - INFO - Server is running, please, press ctrl+c to stop
+05-Mar-23 10:23:28 - DEBUG - connected:('127.0.0.1', 56955)
+05-Mar-23 10:23:32 - INFO - User message:Hello
+05-Mar-23 10:23:32 - INFO - Sending answer message to the user
